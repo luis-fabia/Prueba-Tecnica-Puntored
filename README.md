@@ -1,6 +1,4 @@
-- Prueba Técnica
-
-Aplicación full-stack desarrollada como parte de una prueba técnica.
+Aplicación full-stack 
 
 - Tecnologías
 Frontend
