@@ -1,4 +1,5 @@
-import {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { RegistroTransacciones } from './RegistroTransacciones'
 
 export default function ModuloRecargas() {
 
@@ -19,20 +20,45 @@ export default function ModuloRecargas() {
         value: 0
     })
 
-    async function CompraTX(e) {
+    const [ticket, setTicket] = useState(false)
+    const [error, setError] = useState("")
+    const [cargando , setcargando ] = useState(false)
+
+    async function CompraTX(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
-        const request = await fetch("http://localhost:3000/buy", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(DatosCompra)
-        });
+        try {
+            setcargando(true)
+            const request = await fetch("http://localhost:3000/buy", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(DatosCompra)
+            });
+            
+            const datos = await request.json();
+            if (!request.ok) {
+                setError(datos.message || "No fue Posible realizar la Recarga")
+                return;
+            }
 
-        const datos = await request.json();
 
-        setTransaccion(datos)
+            setTransaccion(datos)
+            setTicket(true)
+            setDatosCompra({
+                supplierId: "",
+                cellPhone: "",
+                value: 0
+            });
+            setcargando(false)
+
+        }
+        catch (errro) {
+            setError("No fue posible comunicarse con el servidor")
+        }
+
+        
     }
 
     useEffect(() => {
@@ -42,10 +68,7 @@ export default function ModuloRecargas() {
             const response = await fetch(
                 "http://localhost:3000/getSuppliers"
             );
-
             const datos = await response.json();
-            console.log(response)
-
             setSuppliers(datos);
         }
 
@@ -113,13 +136,19 @@ export default function ModuloRecargas() {
                     />
 
                     <button type="submit">
-                        Comprar
+                        {cargando  ? "Procesando" : "Comprar"}
                     </button>
 
 
                 </form>
             )}
-            {transaccion.transactionalID && (
+
+            {error && 
+                <p>{error}</p>
+            }
+
+    
+            {ticket && (
                 <div> <div>
                     <h2>Recarga Exitosa</h2>
                     <p>{transaccion.message}</p>
@@ -129,14 +158,16 @@ export default function ModuloRecargas() {
                     <p></p>
                 </div>
 
-                    <button>Continuar</button>
+                    <button onClick={() => setTicket(false)}>Continuar</button>
                 </div>
             )}
 
+            <RegistroTransacciones
+                transaccion={transaccion}
+            />
 
-            
 
-        
+
 
         </>
     );
