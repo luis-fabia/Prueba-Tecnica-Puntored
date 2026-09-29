@@ -1,35 +1,37 @@
 import { HttpException, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {AuthService} from '../service/auth.service.js'
+import { AuthService } from '../service/auth.service.js'
 
 @Injectable()
 export class GetSupplierService {
 
-    constructor(private configService: ConfigService, private authService: AuthService) {}
-    
+    constructor(private configService: ConfigService, private authService: AuthService) { }
 
-   async GetAllProducts() {
 
-        const PUNTORED_AUTH_URL = this.configService.get('PUNTORED_AUTH_URL') 
-        const token = this.authService.token
-    
+    async GetAllProducts() {
+
+
+        const token =  await this.authService.getValidToken()
+
+        const PUNTORED_AUTH_URL = this.configService.get('PUNTORED_AUTH_URL')
+
         try {
-       
-        const peticion =  await fetch(`${PUNTORED_AUTH_URL}/getSuppliers`, {
-            method: 'GET',
-            headers: {'authorization': `${token}`}
-        })
 
-        const datos = await peticion.json()
-        
-        if (!peticion.ok) {
-            throw new HttpException(
-                datos,
-                peticion.status
-            )
-        }
+            const peticion = await fetch(`${PUNTORED_AUTH_URL}/getSuppliers`, {
+                method: 'GET',
+                headers: { 'authorization': `${token}` }
+            })
 
-        return datos
+            const datos = await peticion.json()
+
+            if (!peticion.ok) {
+                throw new HttpException(
+                    datos,
+                    peticion.status
+                )
+            }
+
+            return datos
 
         }
         catch (error) {
@@ -37,10 +39,12 @@ export class GetSupplierService {
                 throw error
             }
 
-            throw new ServiceUnavailableException (
+            throw new ServiceUnavailableException(
                 "No fue Posible la obtencion de los productos "
             );
 
         }
     }
+
 }
+

@@ -11,11 +11,27 @@ export class AuthService {
 
     token: string
 
+    async getValidToken() {
+
+        if (this.token) {
+            return this.token;
+        }
+
+        const body = {
+            user: this.configService.get('PUNTORED_USER'),
+            password: this.configService.get('PUNTORED_PASSWORD')
+        };
+
+        return await this.getToken(body);
+    }
+
     async getToken(body: AuthDto) {
 
         const PUNTORED_AUTH_URL = this.configService.get('PUNTORED_AUTH_URL')
         const PUNTORED_HEADER = this.configService.get('PUNTORED_HEADER')
         const PUNTORED_API_KEY = this.configService.get('PUNTORED_API_KEY')
+        
+
 
         try {
 
@@ -42,6 +58,7 @@ export class AuthService {
             }
 
             this.token = data.token
+            return this.token
 
         } catch (error) {
 
