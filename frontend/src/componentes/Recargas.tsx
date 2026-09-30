@@ -22,7 +22,7 @@ export default function ModuloRecargas() {
 
     const [ticket, setTicket] = useState(false)
     const [error, setError] = useState("")
-    const [cargando , setcargando ] = useState(false)
+    const [cargando, setcargando] = useState(false)
 
     async function CompraTX(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -36,7 +36,7 @@ export default function ModuloRecargas() {
                 },
                 body: JSON.stringify(DatosCompra)
             });
-            
+
             const datos = await request.json();
             if (!request.ok) {
                 setError(datos.message || "No fue Posible realizar la Recarga")
@@ -52,13 +52,14 @@ export default function ModuloRecargas() {
                 value: 0
             });
             setcargando(false)
+            setError("")
 
         }
         catch (errro) {
             setError("No fue posible comunicarse con el servidor")
         }
 
-        
+
     }
 
     useEffect(() => {
@@ -78,97 +79,115 @@ export default function ModuloRecargas() {
 
     return (
         <>
-            <h2>Recargas</h2>
 
-            <select
-                value={DatosCompra.supplierId}
-                onChange={(e) => {
+            <div className="contenedor__general">
+                <main className="modulo-recargas">
+                    <h1 className='Titulo'>Puntored</h1>
 
-                    setDatosCompra({
-                        ...DatosCompra,
-                        supplierId: e.target.value
-                    });
+                    <h2>Recargas</h2>
 
-                    setSeleccion(true);
-                }}
-            >
+                    <select
+                        className="select-operador"
+                        value={DatosCompra.supplierId}
+                        onChange={(e) => {
+                            setDatosCompra({
+                                ...DatosCompra,
+                                supplierId: e.target.value
+                            });
 
-                <option value="">
-                    Seleccionar operador
-                </option>
-
-                {suppliers.map((valor) => (
-                    <option
-                        key={valor.id}
-                        value={valor.id}
+                            setSeleccion(true);
+                        }}
                     >
-                        {valor.name}
-                    </option>
-                ))}
+                        <option value="">Seleccionar operador</option>
 
-            </select>
+                        {suppliers.map((valor) => (
+                            <option key={valor.id} value={valor.id}>
+                                {valor.name}
+                            </option>
+                        ))}
+                    </select>
 
-            {seleccion && (
-                <form onSubmit={CompraTX}>
+                    {seleccion && (
+                        <form className="form-recarga" onSubmit={CompraTX}>
 
-                    <input
-                        type="text"
-                        placeholder="Celular"
-                        value={DatosCompra.cellPhone}
-                        onChange={(e) =>
-                            setDatosCompra({
-                                ...DatosCompra,
-                                cellPhone: e.target.value
-                            })
-                        }
-                    />
+                            <input
+                                className="input-recarga"
+                                type="text"
+                                placeholder="Celular"
+                                value={DatosCompra.cellPhone}
+                                onChange={(e) =>
+                                    setDatosCompra({
+                                        ...DatosCompra,
+                                        cellPhone: e.target.value
+                                    })
+                                }
+                            />
 
-                    <input
-                        type="number"
-                        placeholder="Valor"
-                        value={DatosCompra.value || ""}
-                        onChange={(e) =>
-                            setDatosCompra({
-                                ...DatosCompra,
-                                value: Number(e.target.value)
-                            })
-                        }
-                    />
+                            <input
+                                className="input-recarga"
+                                type="number"
+                                placeholder="Valor"
+                                value={DatosCompra.value || ""}
+                                onChange={(e) =>
+                                    setDatosCompra({
+                                        ...DatosCompra,
+                                        value: Number(e.target.value)
+                                    })
+                                }
+                            />
 
-                    <button type="submit">
-                        {cargando  ? "Procesando" : "Comprar"}
-                    </button>
+                            <button className="btn-comprar" type="submit">
+                                {cargando ? "Procesando" : "Comprar"}
+                            </button>
 
+                        </form>
+                    )}
+                </main>
 
-                </form>
-            )}
+                {error && (
+                    <p className="mensaje-error">{error}</p>
+                )}
 
-            {error && 
-                <p>{error}</p>
-            }
+                {ticket && (
+                    <div className="modal-overlay">
 
-    
-            {ticket && (
-                <div> <div>
-                    <h2>Recarga Exitosa</h2>
-                    <p>{transaccion.message}</p>
-                    <p>{transaccion.cellPhone}</p>
-                    <p>{transaccion.value}</p>
-                    <p>{transaccion.transactionalID}</p>
-                    <p></p>
-                </div>
+                        <div className="ticket">
 
-                    <button onClick={() => setTicket(false)}>Continuar</button>
-                </div>
-            )}
-
-            <RegistroTransacciones
-                transaccion={transaccion}
-            />
+                            <h2>Recarga exitosa</h2>
 
 
+                            <div className="ticket-dato">
+                                <span>Celular</span>
+                                <strong>{transaccion.cellPhone}</strong>
+                            </div>
 
+                            <div className="ticket-dato">
+                                <span>Valor</span>
+                                <strong>${transaccion.value}</strong>
+                            </div>
 
+                            <div className="ticket-dato">
+                                <span>Ticket</span>
+                                <strong>{transaccion.transactionalID}</strong>
+                            </div>
+
+                            <button
+                                className="btn-continuar"
+                                onClick={() => setTicket(false)}
+                            >
+                                Continuar
+                            </button>
+
+                        </div>
+
+                    </div>
+                )}
+
+                <section className="seccion-transacciones">
+                    <RegistroTransacciones />
+                </section>
+
+            </div>
         </>
     );
 }

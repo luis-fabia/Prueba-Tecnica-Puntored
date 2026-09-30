@@ -5,7 +5,6 @@ function App() {
 
   return (
     <>
-      <h1>Puntored</h1>
       <ModuloRecargas/>
     </>
   )
